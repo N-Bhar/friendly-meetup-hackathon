@@ -262,4 +262,4 @@ Use the semantic commands instead where applicable. New embedded examples are di
 - Retrieval mode is labelled honestly: aliases alone versus actual embeddings.
 - A new-policy example and its tests have been rehearsed.
 
-Latest verified on the development machine: 75 offline tests and a lexical showcase with 12/16 positive retrieval checks across 24 original/expanded records. The complete live suite and real embedding retrieval remain unverified there. Runtime output checks are prototype safeguards, not a guarantee against every hallucination or disclosure. See [implementation limits](docs/testing-demo.md#implemented-boundaries-and-limits).
+Latest verified on the development machine: 81 offline tests and a lexical showcase with 12/16 positive retrieval checks across 24 original/expanded records. The complete live suite and real embedding retrieval remain unverified there. Runtime output checks are prototype safeguards, not a guarantee against every hallucination or disclosure. See [implementation limits](docs/testing-demo.md#implemented-boundaries-and-limits).

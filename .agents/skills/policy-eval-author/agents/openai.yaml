@@ -1,0 +1,4 @@
+interface:
+  display_name: "Policy Evaluation Author"
+  short_description: "Add policies and grounded tests for growth demos"
+  default_prompt: "Use $policy-eval-author to add a policy with grounded tests and a before/after scalability check."

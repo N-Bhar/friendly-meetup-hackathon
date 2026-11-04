@@ -29,7 +29,7 @@ gh pr checkout 1 --repo tishayaem/friendly-meetup-hackathon
 
 Latest verified evidence:
 
-- **75 offline tests passed.** Mock embeddings test integration only, not semantic quality.
+- **81 offline tests passed.** Mock embeddings test integration only, not semantic quality.
 - **30 live agent-evaluation cases** are present; this is a case count, not a passing live score.
 - **15 active policies**, with three fictional additions isolated in the search demo's expanded snapshot.
 - The offline lexical search showcase retrieved all expected policies in **12/16 positive checks**, across 24 original/expanded query records. No-applicable-rule cases require manual review and are not counted as automatic passes.
@@ -195,6 +195,30 @@ Replace placeholders and retain the saved JSONL files. Results are ignored by Gi
 5. Run the retrieval showcase and relevant live cases. Review old-policy regressions as well as new coverage.
 
 The search demo's `/expand` uses fixtures in memory and does not edit the active catalogue. The JSON/Markdown policy copies must be kept consistent for human readers; runtime retrieval reads JSON and excludes embedded test answers. See [the full extension example](docs/testing-demo.md#adding-a-policy-and-its-tests).
+
+## Reusable policy/test authoring skill
+
+The team-shareable skill is [`.agents/skills/policy-eval-author/SKILL.md`](.agents/skills/policy-eval-author/SKILL.md). It covers existing-policy test expansion, source-backed policy additions and isolated synthetic growth demos. A personal copy is installed on the development machine; teammates can use the repo copy or copy its folder to `~/.codex/skills/policy-eval-author`.
+
+Example requests in a Codex chat:
+
+```text
+Use $policy-eval-author to add boundary and missing-information tests for the existing perfume rule without changing its meaning.
+
+Use $policy-eval-author to prepare a fictional demo policy: screen-cleaning fluid over 45 ml is prohibited. Add source-derived tests and a held-out query, keeping the active catalogue unchanged.
+
+Use $policy-eval-author to prepare original and expanded policy snapshots, new-case coverage and old-policy regression checks. Run offline checks only and leave live model commands for the teammate machine.
+```
+
+If the skill is not available by name in the current chat, ask the agent to read the repository's SKILL.md directly. The skill drafts cases from explicit policy text; independent review of the expectations is still necessary. It does not automatically invent or activate company rules, run live models, or publish changes.
+
+A read-only helper validates a policy pack and its agreement with the current implementation:
+
+```sh
+uv run python .agents/skills/policy-eval-author/scripts/audit_policy_pack.py --repo . --pack evals/fixtures/policy_additions.json --baseline agent/data/policies.json
+```
+
+Add `--cases path/to/new-cases.jsonl` to check live-case structure and IDs against the existing suite. A successful audit does not make an isolated fixture part of the active catalogue, prove semantic accuracy or replace human review. Unsupported operators, new topics and missing extractors are reported as implementation gaps.
 
 ## Demo readiness checklist
 
