@@ -1,0 +1,19 @@
+services:
+  # Local LLMs (free, no API key). Skip this if you use a hosted provider.
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+  # Optional tracing UI (stretch goal): docker compose --profile tracing up -d
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    profiles: [tracing]
+    ports:
+      - "6006:6006"   # UI
+      - "4317:4317"   # traces (OTLP gRPC)
+
+volumes:
+  ollama:
