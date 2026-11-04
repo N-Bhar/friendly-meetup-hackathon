@@ -4,12 +4,24 @@ import json
 from agent.agent import run_agent
 from agent.llm import client_for
 from agent.verification import Session
+from agent.policies import configured_store
 
 
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--check',action='store_true',help='Check configured model connectivity')
+    parser.add_argument('--semantic',action='store_true',help='Require and prepare real embedding retrieval; never silently use lexical search')
     args=parser.parse_args()
+    store=None
+    if args.semantic:
+        try:
+            print('Preparing semantic policy index...')
+            store=configured_store(require_semantic=True)
+            store.search('Can I send banknotes?',topic='prohibited_items')
+            print('EMBEDDINGS: ready ('+store.embedding_model+')')
+        except Exception as error:
+            print('EMBEDDINGS: unavailable. Set EMBEDDING_MODEL, check its endpoint, and run python -m agent.search_demo --check.')
+            raise SystemExit(2) from error
     if args.check:
         failed=False
         for role in ['CLASSIFIER','AGENT','JUDGE']:
@@ -27,7 +39,7 @@ def main():
     while True:
         question=input('Customer (or /quit): ').strip()
         if question=='/quit': break
-        result=run_agent(question,session=session)
+        result=run_agent(question,session=session,store=store)
         print(json.dumps(result,indent=2,ensure_ascii=False))
         if result['outcome']=='needs_verification':
             import re
@@ -39,7 +51,7 @@ def main():
             print('[TESTER ONLY, SIMULATED CHANNEL] Demo code:',code)
             for _ in range(3):
                 if session.verify(input('Secure demo code entry (not sent to model): ')):
-                    print(json.dumps(run_agent(session.pending_question,session=session),indent=2,ensure_ascii=False))
+                    print(json.dumps(run_agent(session.pending_question,session=session,store=store),indent=2,ensure_ascii=False))
                     break
                 print(session.state)
                 if session.state!='verification_pending': break

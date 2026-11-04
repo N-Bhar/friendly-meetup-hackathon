@@ -58,11 +58,14 @@ def run_agent(question: str, max_steps: int = 5, *, session=None, store=None,
         topics = set(route['topics'])
         if route['intent'] == 'refund':
             topics.add('refunds')
+        store.last_search = []
         policies = store.context(question, topics) if topics or route['intent'] != 'order' else []
         result['policy_ids'] = [p['id'] for p in policies]
         result['policy_hash'] = digest(store.records)
         result['prompt_hash'] = digest(SYSTEM_PROMPT_FILE.read_text(encoding='utf-8'))
         events.append({'stage':'retrieval','policy_ids':result['policy_ids']})
+        result['retrieval_mode'] = 'hybrid_embeddings' if store.embed else 'lexical+aliases'
+        events[-1]['ranking'] = store.last_search
         controller = ToolController(session, store, result['policy_ids'], question)
         evidence = {'policies':[runtime_policy(p) for p in policies]}
         # Direct reviewed aliases can be resolved without generative decisions.

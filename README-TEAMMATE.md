@@ -56,7 +56,7 @@ uv run python -m evals.stages
 
 Expected results for the current unmodified catalogue:
 
-- 56 passing offline tests.
+- Run the complete offline test suite; the semantic demo adds tests beyond the original 56-test PR.
 - 15 active policies validated/indexed.
 - A benchmark report for 25, 115 and 1,015 total records: the real policies plus 10, 100 or 1,000 synthetic distractors.
 - Benchmark mode explicitly labelled `lexical+aliases`. It is not a semantic-model benchmark.
@@ -205,6 +205,8 @@ Replace the two placeholder filenames. Keep case expectations and judge configur
 
 ## 8. Optional: enable semantic retrieval
 
+For a ready-to-run interactive walkthrough, use [the semantic demo guide](docs/semantic-demo.md). It includes the embedding-model download, preflight, ranking traces and policy-growth showcase. The search-only demo requires no classifier, answering model or judge.
+
 The default is keyword plus reviewed-alias matching. To add embeddings:
 
 1. Choose and install an embedding-capable model on Ollama, or configure a compatible hosted embedding endpoint.
@@ -218,7 +220,7 @@ uv run python -m evals.stages --semantic
 
 Do not set a chat-only model as the embedding model. The semantic benchmark also embeds synthetic distractors: its first run can be slower and can incur hosted embedding charges. Cached embeddings live under `.cache/`; changing model identity or policy content triggers recomputation as appropriate.
 
-When semantic retrieval is enabled, use `--semantic` when explicitly preparing the index. The plain preparation command writes a lexical index to the same default index path. Runtime requests rebuild missing embeddings, which can make the first request unexpectedly slow.
+When semantic retrieval is enabled, use `--semantic` when explicitly preparing the index. Semantic and lexical preparation now use separate cache files. Runtime requests rebuild missing embeddings, which can make the first request unexpectedly slow.
 
 ## 9. Demonstrate adding a policy and its tests
 

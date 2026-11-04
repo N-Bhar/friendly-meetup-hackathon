@@ -5,6 +5,8 @@
 
 **Running the implemented version on a teammate's computer? Start with [the teammate setup and demo guide](README-TEAMMATE.md)** for dependencies, local/hosted models, configuration, tests, semantic search and demo steps. The workshop instructions below describe the original starter exercise.
 
+**Semantic search demo:** follow [the working demo guide](docs/semantic-demo.md) for side-by-side keyword/semantic rankings, interactive rule evaluation and before/after policy additions. Start it with `uv run python -m agent.search_demo` after configuring the embedding model.
+
 ## 🎯 What you'll build
 
 - A **test set** of customer questions

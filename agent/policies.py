@@ -8,6 +8,7 @@ from pathlib import Path
 
 CATALOGUE = Path(__file__).parent / "data" / "policies.json"
 INDEX = Path(__file__).parent.parent / ".cache" / "policy-index.json"
+SEMANTIC_INDEX = INDEX.with_name('policy-index.semantic.json')
 
 
 def runtime_policy(policy):
@@ -21,6 +22,12 @@ def words(text):
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def checked_vector(vector):
+    if not isinstance(vector, list) or not vector or any(type(x) not in (int,float) or not math.isfinite(x) for x in vector) or not any(vector):
+        raise ValueError('Embedding endpoint returned an invalid or zero vector')
+    return vector
 
 
 def load_policies(path=CATALOGUE):
@@ -67,6 +74,8 @@ def build_index(records=None, path=INDEX, embed=None, model="lexical"):
         vector = previous.get("vector") if previous.get("hash") == fingerprint else None
         if embed and vector is None:
             vector = embed(p["text"] + " " + " ".join(p["aliases"]))
+        if embed:
+            checked_vector(vector)
         entries[p["id"]] = {"hash": fingerprint, "vector": vector}
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"model": model, "entries": entries}), encoding="utf-8")
@@ -84,11 +93,20 @@ class PolicyStore:
     def __init__(self, records=None, embed=None, index=None):
         self.records = load_policies() if records is None else [p for p in records if p["active"]]
         self.embed, self.index = embed, index or {}
+        self.last_search = []
 
     def search(self, query, topic=None, limit=5):
+        return [hit['policy'] for hit in self.search_with_scores(query, topic, limit)]
+
+    def search_with_scores(self, query, topic=None, limit=5):
+        """Scores explain ranking, not a probability of applicability."""
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError('Provide a nonempty search query')
+        if type(limit) is not int or not 1 <= limit <= 20:
+            raise ValueError('Search limit must be between 1 and 20')
         candidates = [p for p in self.records if topic is None or p["topic"] == topic]
         q = words(query)
-        vector = self.embed(query) if self.embed else None
+        vector = checked_vector(self.embed(query)) if self.embed else None
         ranked = []
         for p in candidates:
             terms = words(p["text"] + " " + " ".join(p["aliases"]))
@@ -100,8 +118,10 @@ class PolicyStore:
                 semantic = max(0, cosine(vector, entry["vector"]))
             score = lexical + float(alias) + semantic
             if score > 0:
-                ranked.append((score, p))
-        return [p for _, p in sorted(ranked, key=lambda row: (-row[0], row[1]["id"]))[:limit]]
+                ranked.append({'score':score,'policy':p,'lexical':lexical,'alias':int(alias),'semantic':semantic})
+        hits = sorted(ranked, key=lambda row: (-row['score'], row['policy']['id']))[:limit]
+        self.last_search = [{k:v for k,v in hit.items() if k != 'policy'} | {'policy_id':hit['policy']['id']} for hit in hits]
+        return hits
 
     def context(self, query, topics):
         # Mandatory small topic groups are included, not just whichever sections rank first.
@@ -147,15 +167,18 @@ def explicit_facts(question):
     return facts
 
 
-def configured_store(index_path=INDEX):
+def configured_store(index_path=SEMANTIC_INDEX, *, records=None, require_semantic=False):
     import os
     from agent.llm import client_for
     if not os.getenv("EMBEDDING_MODEL"):
-        return PolicyStore()
+        if require_semantic:
+            raise ValueError('Set EMBEDDING_MODEL in .env to an installed embedding-capable model')
+        return PolicyStore(records)
     client, model = client_for("EMBEDDING")
     embed = lambda text: client.embeddings.create(model=model, input=text).data[0].embedding
-    entries = build_index(embed=embed, model=model, path=index_path)
-    store = PolicyStore(embed=embed, index=entries)
+    records = load_policies() if records is None else records
+    entries = build_index(records, embed=embed, model=str(client.base_url)+'|'+model, path=index_path)
+    store = PolicyStore(records, embed=embed, index=entries)
     store.embedding_model = model
     return store
 

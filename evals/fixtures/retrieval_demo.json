@@ -1,0 +1,120 @@
+[
+  {
+    "id": "cash-alias",
+    "query": "Can I send banknotes?",
+    "topic": "prohibited_items",
+    "expected_original": [
+      "prohibited-cash"
+    ],
+    "expected_expanded": [
+      "prohibited-cash"
+    ]
+  },
+  {
+    "id": "cash-paraphrase",
+    "query": "Can I ship paper money from my wallet?",
+    "topic": "prohibited_items",
+    "expected_original": [
+      "prohibited-cash"
+    ],
+    "expected_expanded": [
+      "prohibited-cash"
+    ]
+  },
+  {
+    "id": "perfume-paraphrase",
+    "query": "Can I ship a bottle of scented eau de toilette?",
+    "topic": "prohibited_items",
+    "expected_original": [
+      "prohibited-perfume"
+    ],
+    "expected_expanded": [
+      "prohibited-perfume"
+    ]
+  },
+  {
+    "id": "delivery-charge",
+    "query": "What is the charge for next-day parcel delivery?",
+    "topic": null,
+    "expected_original": [
+      "pricing"
+    ],
+    "expected_expanded": [
+      "pricing"
+    ]
+  },
+  {
+    "id": "late-fee",
+    "query": "My premium courier missed its promised arrival. Can I reclaim postage?",
+    "topic": null,
+    "expected_original": [
+      "refunds"
+    ],
+    "expected_expanded": [
+      "refunds"
+    ]
+  },
+  {
+    "id": "new-art-ink",
+    "query": "Can I send 31 ml illustration ink?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": [
+      "demo-art-ink"
+    ]
+  },
+  {
+    "id": "new-dye",
+    "query": "Can I send 50 ml cloth dye?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": [
+      "demo-fabric-dye"
+    ]
+  },
+  {
+    "id": "new-token",
+    "query": "Can I send a sample token?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": [
+      "demo-sample-token"
+    ]
+  },
+  {
+    "id": "interacting-cash-dye",
+    "query": "Can I send cash and 51 ml textile dye?",
+    "topic": "prohibited_items",
+    "expected_original": [
+      "prohibited-cash"
+    ],
+    "expected_expanded": [
+      "prohibited-cash",
+      "demo-fabric-dye"
+    ]
+  },
+  {
+    "id": "different-quantities",
+    "query": "Can I send 40 ml artist ink and 60 ml cloth dye?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": [
+      "demo-art-ink",
+      "demo-fabric-dye"
+    ]
+  },
+  {
+    "id": "unknown-mug",
+    "query": "Can I send a ceramic mug?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": []
+  },
+  {
+    "id": "near-neighbour",
+    "query": "Can I send a fabric swatch?",
+    "topic": "prohibited_items",
+    "expected_original": [],
+    "expected_expanded": []
+  }
+]
