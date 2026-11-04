@@ -1,6 +1,6 @@
 # Teammate setup and demo guide
 
-Use this guide to run the implemented policy controller and evaluation suite on another computer. The original workshop README describes the starter exercise; some of its TODOs have now been implemented.
+Use this guide to run the implemented policy controller and evaluation suite on another computer. The main README now lists implementation status, run commands and outstanding work; its collapsed workshop brief preserves the original exercise.
 
 ## 1. What to bring across
 
@@ -49,7 +49,7 @@ uv python install 3.13
 uv sync --python 3.13 --locked
 uv run pytest -q
 uv run python -m agent.policies
-uv run python -m evals.stages
+uv run python -m agent.search_demo --mode lexical --check
 ```
 
 `uv sync` includes the `dev` dependency group, which contains pytest. Python 3.13 is a reproducible choice here; the project declares support for Python 3.11 and later.
@@ -58,8 +58,9 @@ Expected results for the current unmodified catalogue:
 
 - Run the complete offline test suite; the semantic demo adds tests beyond the original 56-test PR.
 - 15 active policies validated/indexed.
-- A benchmark report for 25, 115 and 1,015 total records: the real policies plus 10, 100 or 1,000 synthetic distractors.
-- Benchmark mode explicitly labelled `lexical+aliases`. It is not a semantic-model benchmark.
+- A lexical search preflight with ranked policy IDs and score components. This is not a semantic-model quality result.
+
+**Known benchmark blocker:** the retrieval branch of `evals.stages` still reads an old metric key and can raise `KeyError`. Do not use that command as demonstration evidence until fixed. The search-demo commands above are separate; see [remaining work](README.md#what-remains-to-implement).
 
 No baseline model-quality score or full successful live evaluation has been established yet. These offline results do not imply that every live-model case will pass.
 
@@ -215,7 +216,7 @@ The default is keyword plus reviewed-alias matching. To add embeddings:
 
 ```sh
 uv run python -m agent.policies --semantic
-uv run python -m evals.stages --semantic
+uv run python -m agent.search_demo --showcase --report results/semantic-showcase.jsonl
 ```
 
 Do not set a chat-only model as the embedding model. The semantic benchmark also embeds synthetic distractors: its first run can be slower and can incur hosted embedding charges. Cached embeddings live under `.cache/`; changing model identity or policy content triggers recomputation as appropriate.
@@ -231,7 +232,7 @@ Follow the complete example in [the policy/test extension guide](docs/testing-de
 ```sh
 uv run python -m agent.policies
 uv run pytest -q
-uv run python -m evals.stages
+uv run python -m agent.search_demo --mode lexical --check
 ```
 
 Use the semantic commands instead where applicable. New embedded examples are discovered by the offline test suite. Add a live case to `evals/cases.jsonl` when introducing a new conversational behaviour. The initial rule engine supports `eq`/`gt` conjunctions; arbitrary new condition types need implementation and tests.
@@ -261,4 +262,4 @@ Use the semantic commands instead where applicable. New embedded examples are di
 - Retrieval mode is labelled honestly: aliases alone versus actual embeddings.
 - A new-policy example and its tests have been rehearsed.
 
-Previously verified on the development machine: 56 offline tests and the small lexical benchmark. The complete live suite and real embedding retrieval remain unverified there. Runtime output checks are prototype safeguards, not a guarantee against every hallucination or disclosure. See [implementation limits](docs/testing-demo.md#implemented-boundaries-and-limits).
+Latest verified on the development machine: 75 offline tests and a lexical showcase with 12/16 positive retrieval checks across 24 original/expanded records. The complete live suite and real embedding retrieval remain unverified there. Runtime output checks are prototype safeguards, not a guarantee against every hallucination or disclosure. See [implementation limits](docs/testing-demo.md#implemented-boundaries-and-limits).
